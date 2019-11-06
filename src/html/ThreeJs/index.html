@@ -28,9 +28,21 @@
         let texture = new THREE.TextureLoader().load( '../img/textures/crate.gif' );
         // 创建几何图形-矩形
         // CubeGeometry(width, height, depth, segmentsWidth, segmentsHeight, segmentsDepth, materials, sides)
+        // let geometry = new THREE.CubeGeometry( 200, 200, 200 ); // 等价于 new THREE.BoxGeometry( 200, 200, 200 )
+        // 为了创建一个立方体，我们需要使用盒子模型（BoxGeometry），这是一个包含立方体所有顶点和填充面的对象。
+        // let geometry = new THREE.BoxGeometry( 200, 200, 200 );
+
+
         let geometry = new THREE.CubeGeometry( 200, 200, 200 );
+        // 等价于 new THREE.BoxGeometry( 200, 200, 200 )
+
         // 创建质材
-        let material = new THREE.MeshBasicMaterial( { map: texture } );
+        // let material = new THREE.MeshBasicMaterial( { map: texture } );
+        var material = new THREE.MeshBasicMaterial({
+            // color: 0xffff00,
+            // wireframe: true,
+            map: texture
+        });
         // 创建网格， 几何体是不能被渲染的，只有几何体和材质结合成网格才能被渲染到屏幕上
         // 网格简单可以理解为 胶水，吧质材贴合到几何体上
         mesh = new THREE.Mesh( geometry, material );
@@ -39,16 +51,26 @@
         // 创建透视相机
         /*
           PerspectiveCamera( fov : Number, aspect : Number, near : Number, far : Number )
-          fov — 垂直视野
-          aspect — 比例
+          fov — 摄像机截锥垂直视野
+          aspect — 视野纵横比
           near — 近景
           far — 远景 */
         camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 1000 );
-        // 设置相机景深
+        // 设置相机位置
         camera.position.z = 400;
+        // camera.position.set(0,0,400)//set(x,y,z)
+        // camera.lookAt(new THREE.Vector3(0, 0, 400));
 
         // 创建渲染器
-        renderer = new THREE.WebGLRenderer( { antialias: true } );
+        renderer = new THREE.WebGLRenderer({
+            antialias: true, // true/false表示是否开启反锯齿
+            alpha: true, // true/false 表示是否可以设置背景色透明
+            precision: 'highp', // highp/mediump/lowp 表示着色精度选择
+            premultipliedAlpha: false, // true/false 表示是否可以设置像素深度（用来度量图像的分辨率）
+            preserveDrawingBuffer: true, // true/false 表示是否保存绘图缓冲
+            maxLights: 3, // 最大灯光数
+            stencil: false // false/true 表示是否使用模板字体或图案
+        });
         renderer.setPixelRatio( window.devicePixelRatio );
         renderer.setSize( window.innerWidth, window.innerHeight );
 
@@ -59,7 +81,9 @@
     }
 
     function onWindowResize() {
+        // 重置视野纵横比
         camera.aspect = window.innerWidth / window.innerHeight;
+        // 更新相机投影矩阵，必须在参数发生变化后调用。
         camera.updateProjectionMatrix();
 
         renderer.setSize( window.innerWidth, window.innerHeight );
@@ -68,6 +92,7 @@
     function animate() {
         requestAnimationFrame( animate );
 
+        // 改变物体位置
         mesh.rotation.x += 0.005;
         mesh.rotation.y += 0.01;
 
